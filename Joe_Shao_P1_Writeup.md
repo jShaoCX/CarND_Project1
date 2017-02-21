@@ -1,9 +1,5 @@
 #**Finding Lane Lines on the Road** 
 
-##Writeup Template
-
-###You can use this file as a template for your writeup if you want to submit it as a markdown file. But feel free to use some other method and submit a pdf if you prefer.
-
 ---
 
 **Finding Lane Lines on the Road**
@@ -18,6 +14,7 @@ The goals / steps of this project are the following:
 [imageRoadSection]: ./ResultImages/roadSection.jpg "Road Section"
 [imageMask]: ./ResultImages/maskSection.jpg "Mask Section"
 [imageRemoveColor]: ./ResultImages/RemoveColor.jpg "Removed Color"
+[imageRemoveColor_small]: ./ResultImages/removingRoadSection_small.jpg "Removed Color"
 
 ---
 
@@ -35,10 +32,17 @@ The goals / steps of this project are the following:
 
  ![alt text][imageRoadSection]
  
+ The resulting road pixel averaging looks like the image below: 
+ 
+  ![alt text][imageRemoveColor_small]
+ 
+ 
  Ultimately, the flattening of road artifact pixels and image edge pixels did not help the algorithm as much as I thought it would and it made the pipeline much slower because it had to scan half of each frame’s pixels. Though, it did prevent some of the frames from drawing lines to follow the shadows created by the center divider and the tree. Furthermore, when constraining the slope of the lines to be no less than absolute value of 0.4, the challenge video actually succeeded, though mainly by simply omitting the lines from that particular frame and not actually resolving the image in that frame.
 
 [White Lane Line Video](https://www.youtube.com/watch?v=5QFGzzh83Ec&feature=youtu.be)
+
 [Yellow Lane Line Video](https://www.youtube.com/watch?v=M8MODgdEyAs&feature=youtu.be)
+
 [Challenge Video - Jumpy](https://www.youtube.com/watch?v=nUBTyS9HWc8&feature=youtu.be)
 
 ###2. Identify potential shortcomings with your current pipeline
@@ -59,10 +63,15 @@ The goals / steps of this project are the following:
  The line drawing section made an assumption that all slopes less than absolute value of 0.35 are invalid. This may not be true if the car is making a sharp turn or maybe crossing lane lines. In the case of my draw_lines function, the line would just be omitted. Ideally, the line would still remain and the next closes lane line, the boundary of the next lane, would appear during a lane change. Creating the lines also assumes that there is a positive sloped line and a negative slope line. Again, this would be true for the camera that is right in front of the car, but if the camera were to change position, the threshold of 0.35 could easily be violated and that particular lane line would not appear. For example, changing it to 0.40 would allow the Challenge video to work but cause the yellow lane line video to, intermittently, have no lane lines:
 
  [Yellow Lane Line - Jumpy due to bad threshold](https://www.youtube.com/watch?v=nqMc9dktbnE&feature=youtu.be)
+ 
  [Challenge - with threshold, looks less jumpy but is just omitting those lines](https://www.youtube.com/watch?v=7MDdxSi2Uco&feature=youtu.be)
 
 ###3. Suggest possible improvements to your pipeline
 
-A possible improvement would be to ...
+Additional image processing is necessary even before the grayscale. There must be a way to quickly, per frame, determine the colors that are not part of the lane lines. Originally, I tried to take the RGB values of the pixels of the road section but that resulted in the pipeline being almost 10x slower because it would have to search through all three channels instead of just a single grayscale channel. I also tried to just color threshold at around yellow and above, but when the concrete in the challenge image showed up, the yellow lane line on the right was completely lost. There must be a way to only threshold by the colors of the lane lines and I believe another color scheme such as HSV would have worked to separate out the colors. I've read online that HSV color space separates color intensity from color instead of just separating between red, green and blue. This seems like the way to go in order to avoid the tree shadows covering the yellow lane in the challenge video. 
 
-Another potential improvement could be to ...
+In terms of tampering with the existing parts of the pipeline, once within an optimal range, there is only so much that canny edge detection or transforming the image into hough space can do. As for binning the lines and averaging them, I think it would be best to not just pick the most common negative slope and most common positive slope. The image processing steps should ensure that the lines resulting from the Hough transform would be the actual lines we are interested in and the two most common (cumulative distance for all of the lines per slope bin) should simply be selected. 
+
+There may also be a smarter masking strategy. If it is possible, we would want to determine what is the end (or furthest) of the road we can see and maske the image from there instead of arbitrarily selecting half or 3/5 of the image. For lane line detection exclusively, I believe that this would be a safe optimization because we are only concerned with what the ground looks like.
+
+Once other cached information is available, it would be best to remember successful runs of the pipeline on the most recent frames and use successful line fits to guide the current calculation. It would be helpful to cache the most recent lane line colors because we assume those are fairly constant on a long stretch of road. Also, caching the road types and colors would be helpful to determine if a patchy road is anything for the edge detection algorithm to be concerned about. If it is not, then the cache can be used to flatten out those sections of the road. 
