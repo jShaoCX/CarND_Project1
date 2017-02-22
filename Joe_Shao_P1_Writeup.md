@@ -15,6 +15,9 @@ The goals / steps of this project are the following:
 [imageMask]: ./ResultImages/maskSection.jpg "Mask Section"
 [imageRemoveColor]: ./ResultImages/RemoveColor.jpg "Removed Color"
 [imageRemoveColor_small]: ./ResultImages/removingRoadSection_small.jpg "Removed Color"
+[videoYellow]: ./FinalVideos/yellow.mp4
+[videoWhite]: ./FinalVideos/white.mp4
+[videoChallenge]: ./FinalVideos/extra.mp4
 
 ---
 
@@ -37,11 +40,17 @@ The goals / steps of this project are the following:
   ![alt text][imageRemoveColor_small]
  
  
- Ultimately, the flattening of road artifact pixels and image edge pixels did not help the algorithm as much as I thought it would and it made the pipeline much slower because it had to scan half of each frame’s pixels. Though, it did prevent some of the frames from drawing lines to follow the shadows created by the center divider and the tree. Furthermore, when constraining the slope of the lines to be no less than absolute value of 0.4, the challenge video actually succeeded, though mainly by simply omitting the lines from that particular frame and not actually resolving the image in that frame.
+ Ultimately, the flattening of road artifact pixels and image edge pixels did not help the algorithm as much as I thought it would and it made the pipeline much slower because it had to scan half of each frame’s pixels. Though, it did prevent some of the frames from drawing lines to follow the shadows created by the center divider and the tree. Furthermore, when constraining the slope of the lines to be no less than absolute value of 0.4, the challenge video actually succeeded, though mainly by simply omitting the lines from that particular frame and not actually resolving the image in that frame. The videos in the FinalVideos folder of th repository show the lines cut off before intersecting each other.
+
+![alt text][videoWhite]
 
 [White Lane Line Video](https://www.youtube.com/watch?v=5QFGzzh83Ec&feature=youtu.be)
 
+![alt text][videoYellow]
+
 [Yellow Lane Line Video](https://www.youtube.com/watch?v=M8MODgdEyAs&feature=youtu.be)
+
+![alt text][videoChallenge]
 
 [Challenge Video - Jumpy](https://www.youtube.com/watch?v=nUBTyS9HWc8&feature=youtu.be)
 
